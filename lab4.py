@@ -1,68 +1,93 @@
 import numpy as np
-import random
+import sys
 
-'''Array Creation'''
+if sys.argv[1] == "1":
+    # a)
+    a = np.arange(0, 101, 2)  # assume that 100 is included
+    print(a)
 
-# a
-arr1a = np.arange(0, 100, 2)
-print('arr1a', arr1a)
+    # b1) both solutions are equivalent
+    b = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
+    b = np.array([1, 1, 1, 2, 2, 2, 3, 3, 3]).reshape(3, 3)
+    print(b)
 
-# b
-arr1b = np.array([(i, i, i) for i in range(1, 4, 1)])
-print('arr1b', arr1b)
+    # b2) principled solution for large arrays using broadcasting, 10x10 array
+    # create a 1d vector with entries from 1 to 3 included
+    rowCoeffs = np.arange(1, 11, 1)
+    b2 = np.ones([10, 10]) * rowCoeffs.reshape(10, 1)  # use broadcasting!!
+    print(b2)
 
-# c
-arr1c = np.full((3, 5), 55)
-print('arr1c', arr1c)
+    # c)
+    c = np.ones([3, 5]) * 55
 
-# d
-arr1d = np.random.rand(5, 4, 3)
-print('arr1d', arr1d)
+    # d)
+    d = np.random.uniform(0, 1, (5, 4, 3))
+    print(d)
+    d = np.random.uniform(0, 1, 60).reshape(5, 4, 3)
+    print(d)
 
-'''Numpy basics and slicing'''
-traind = np.random.uniform(0, 255, [2000, 20, 20])
-# a
-print('arr2a', traind[1000])
-# b
-print('arr2b', traind[0:1000:1, 0:5:1], traind[0:1000:1, 15:20:1])
-# c
-print('arr2c', np.amax(traind[10]), np.amin(traind[10]))
-# d
-print('arr2d')
-# e
-z = traind[10]
-print('arr2e1', z[::2, ::])
-print('arr2e2', z[::, ::2])
-print('arr2e3', np.transpose(z))
-print('arr2e4', np.flip(z, 0), np.flip(z, 1), z[::2, ::2])
-# f
-print('arr2f', 1-z)
+if sys.argv[1] == "2":
+    # stack of 2D images of dimensions 20x20
+    traind = np.random.uniform(0, 255, [2000, 20, 20])
+    # a)
+    a = traind[999, :, :]
+    a = traind[999]    # equivalent!
+    print(a.shape, a.ravel().shape)
 
-'''Reduction'''
+    # b) set topmost and lowermost rows to 0
+    # rows
+    a[0:5, :] = 0
+    a[15:, :] = 0
+    """
+  # columns, exercise was not totally clear
+  a[:, 0:5] = 0 ;
+  a[:, 15:] = 0 ;
+  """
+    # c)
+    # slice out sample/image nr 10
+    c = traind[9]
+    print("minmax=", c.min(), np.max(c))
 
-# a
-print('arr3a', np.sum(traind[::, 0, 0]))
-# b
-print('arr3b', np.mean(traind[::, 0, 0]))
-# c
-print('arr3c', np.mean(traind, axis=(1, 2)))
-# d
-print('arr3d', np.mean(traind, axis=(1)))
-# e
-print('arr3e', np.sum(traind, axis=(1)))
+    # d)
+    d1 = c[::2, :]  # or c[::2]
+    d2 = c[:, ::2]
+    d3 = c[::-1, ::-1]
+    d4 = c[::-2, ::-2]
 
-'''Broadcasting'''
+    # f) # in-place
+    traind *= -1
+    traind += 1
+    # BAD: copy created and original array is discarded
+    traind = 1-traind
 
-tempB = np.arange(1, 21, 1)
-print(tempB)
-# a
-print('arr4a', traind + tempB[None, :])
-# b
-print('arr4b', traind + tempB[:, None])
-# c
-print('arr4c', traind + 0)
+if sys.argv[1] == "3":
+    # stack of 2D images of dimensions 20x20
+    traind = np.random.uniform(0, 255, [2000, 20, 20])
+    # a)
+    a = np.sum(traind[:, 0, 0])
+    # b)
+    b = np.mean(traind[:, 0, 0])
+    # c)
+    c = np.mean(traind, axis=0)
+    # d)
+    d = traind.max(axis=2)
+    # e)
+    e = traind.sum(axis=2)
 
-'''Fancy indexing and mask indexing'''
+if sys.argv[1] == "4":
+    vec = np.arange(1, 21, 1)
+    # a)
+    traind += vec.reshape(1, 1, 20)
+    # b)
+    traind += vec.reshape(1, 20, 1)
+    # c)
+    traind += traind[0].reshape(1, 20, 20)
 
-# a
-# b
+if sys.argv[1] == "5":
+    vec = np.arange(1, 21, 1)
+    # a)
+    smaller = vec[(vec < 10)]
+    print("smaller", smaller)
+    # b)
+    vec[[1, 5, 19]] = 0
+    print(vec)
